@@ -8,10 +8,13 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class QrDetailAdapter extends ArrayAdapter<QrBeanModel> {
     List<QrBeanModel> QrObject;
+//    private ArrayList<QrBeanModel> privatearray;
     public QrDetailAdapter(Context context, int resource,List<QrBeanModel> objects) {
         super(context, resource, objects);
         this.QrObject = objects;
@@ -36,4 +39,23 @@ public class QrDetailAdapter extends ArrayAdapter<QrBeanModel> {
         qrDate.setText(qrBeanModel.getDate());
         return convertView;
     }
+
+//    // Filter Class
+//    public void filter(String charText) {
+//
+//        charText = charText.toLowerCase(Locale.getDefault());
+//        QrObject.clear();
+//        if(charText.length()==0){
+//            privatearray.addAll(QrObject);
+//        }
+//        else{
+//            for (QrBeanModel c : privatearray) {
+//                if (c.getQrText().toLowerCase(Locale.getDefault())
+//                        .contains(charText)) {
+//                    QrObject.add(c);
+//                }
+//            }
+//        }
+//        notifyDataSetChanged();
+//    }
 }

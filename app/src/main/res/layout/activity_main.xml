@@ -6,13 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:background="#E6E5E6">
-
+    <SearchView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search Here For QR Text"
+        android:id="@+id/inputSearch"/>
     <ListView
         android:id="@+id/qrDetailList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@null"
         android:dividerHeight="10dp"
+        android:layout_marginTop="55dp"
         android:listSelector="@android:color/transparent"
         android:cacheColorHint="@android:color/transparent"
         android:headerDividersEnabled="true"

@@ -4,6 +4,7 @@
     package="com.testy.qrscannernotes">
 
     <uses-permission android:name="android.permission.CAMERA"> </uses-permission>
+
     <application
         android:hardwareAccelerated="true"
         android:allowBackup="true"
@@ -19,6 +20,7 @@
             android:theme="@style/zxing_CaptureTheme"
             android:windowSoftInputMode="stateAlwaysHidden"/>
         <activity android:name=".MainActivity"
+            android:windowSoftInputMode="stateHidden"
             android:screenOrientation="portrait"
             tools:replace="android:screenOrientation"
             android:stateNotNeeded="true">

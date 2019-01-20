@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,12 +16,15 @@ import android.view.View;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.google.zxing.Result;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import com.google.zxing.qrcode.encoder.QRCode;
 import com.hudomju.swipe.SwipeToDismissTouchListener;
 import com.hudomju.swipe.adapter.ListViewAdapter;
 
@@ -28,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     List<QrBeanModel> QrObject = new ArrayList<>();
     QrDetailAdapter qrDetailAdapter;
     Cursor c;
+    SearchView inputSearch;
+    List<QrBeanModel> tempList = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +56,32 @@ public class MainActivity extends AppCompatActivity {
         qrDetailList.setAdapter(qrDetailAdapter);
         qrDetailAdapter.notifyDataSetChanged();
         performSql();
+
+        //Main code for search view
+        tempList.addAll(QrObject);
+        inputSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                QrObject.clear();
+                for(QrBeanModel qr: tempList){
+                    if(qr.getQrText().contains(s)){
+                        //contains
+                        QrObject.add(qr);
+                    } else if(s.length() == 0) {
+                        Toast.makeText(getApplicationContext(),"list is clear",Toast.LENGTH_LONG).show();
+                        tempList.addAll(QrObject);
+                    }
+                }
+                qrDetailAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+
 
 
         //To perform delete on swipe in the list
@@ -83,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void intializeViews(){
         qrDetailList = (ListView) findViewById(R.id.qrDetailList);
+        qrDetailList.setTextFilterEnabled(true);
+        inputSearch = (SearchView) findViewById(R.id.inputSearch);
     }
 
     public void scan(){
@@ -140,8 +176,54 @@ public class MainActivity extends AppCompatActivity {
             case R.id.scanQrCode:
                 scan();
                 break;
+            case R.id.sortByDate:
+                orderByDate();
+                break;
+            case R.id.sortByName:
+                orderByName();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void orderByDate(){
+        Toast.makeText(getApplicationContext(),"order by date working",Toast.LENGTH_LONG).show();
+        c = myDatabase.rawQuery("SELECT * FROM lastfourth ORDER BY date Desc",null);
+        int nameIndex = c.getColumnIndex("name");
+        int dateIndex = c.getColumnIndex("date");
+        int dateIDIndex = c.getColumnIndex("spec");
+
+
+        if(c.moveToFirst()){
+            do{
+                Log. i ( "user-name" ,c.getString(nameIndex));
+                Log.i("date id ",c.getString(dateIDIndex));
+                QrBeanModel qrBeanModel = new QrBeanModel(c.getString(nameIndex),c.getString(dateIndex),c.getString(dateIDIndex));
+                QrObject.add(qrBeanModel);
+                qrDetailAdapter.notifyDataSetChanged();
+                Log. i ( "user-age" ,c.getString(dateIndex));
+            }while (c.moveToNext());
+        }
+    }
+
+    public void orderByName(){
+        Toast.makeText(getApplicationContext(),"order by date working",Toast.LENGTH_LONG).show();
+        c = myDatabase.rawQuery("SELECT * FROM lastfourth ORDER BY name",null);
+        int nameIndex = c.getColumnIndex("name");
+        int dateIndex = c.getColumnIndex("date");
+        int dateIDIndex = c.getColumnIndex("spec");
+
+
+        if(c.moveToFirst()){
+            do{
+                Log. i ( "user-name" ,c.getString(nameIndex));
+                Log.i("date id ",c.getString(dateIDIndex));
+                QrBeanModel qrBeanModel = new QrBeanModel(c.getString(nameIndex),c.getString(dateIndex),c.getString(dateIDIndex));
+                QrObject.add(qrBeanModel);
+                qrDetailAdapter.notifyDataSetChanged();
+                Log. i ( "user-age" ,c.getString(dateIndex));
+            }while (c.moveToNext());
+        }
     }
 
     public static void sendUniqueKey(String s){
@@ -159,6 +241,10 @@ public class MainActivity extends AppCompatActivity {
 
         //Creating the table if not exists
         myDatabase.execSQL("CREATE TABLE IF NOT EXISTS lastfourth (name VARCHAR , date VARCHAR , spec VARCHAR)");
+        showDatabaseInList();
+    }
+
+    public void showDatabaseInList(){
 
         try {
             c = myDatabase.rawQuery("SELECT * FROM lastfourth",null);
